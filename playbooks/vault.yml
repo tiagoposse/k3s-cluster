@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: Load keys
+      include_vars:
+        file: "{{ root_dir }}/cluster/group_vars/vault_keys.yml"
+        name: vault_keys
+      tags:
+        - always
+
+    - name: Root key
+      debug:
+        msg: "{{ vault_keys.root_key }}"
+      tags:
+        - root
+
+    - name: Unseal
+      community.kubernetes.k8s_exec:
+        pod: "{{ item[0] }}"
+        namespace: tools
+        command: "vault operator unseal {{ item[1] }}"
+      failed_when: "(unseal_out.rc is defined and unseal_out.rc != 0) or unseal_out.stderr | length > 0"
+      register: unseal_out
+      loop: "{{ pods | product(unseal_keys) | list }}"
+      retries: 5
+      delay: 2
+      until: unseal_out is not failed
+      vars:
+        pods:
+          - vault-0
+          - vault-1
+          - vault-2
+        unseal_keys: "{{ vault_keys['keys'] | dict2items | json_query('[].value') | list }}"
+      tags:
+        - unseal

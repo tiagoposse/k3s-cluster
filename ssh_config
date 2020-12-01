@@ -1,0 +1,7 @@
+Host 192.168.178.* master* worker*
+  IgnoreUnknown UseKeychain
+  UseKeychain yes
+  ForwardAgent yes
+  ControlMaster auto
+  ControlPersist 60s
+  ControlPath /tmp/ansible-ssh-%h-%p-%r

@@ -1,0 +1,24 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+  children:
+    cluster:
+      children:
+        master:
+          hosts:
+            master1:
+              ansible_host: 192.168.178.48
+        node:
+          hosts:
+            worker1:
+              ansible_host: 192.168.178.49
+            
+            worker2:
+              ansible_host: 192.168.178.50
+
+# BEGIN ANSIBLE MANAGED BLOCK
+      vars:
+        ansible_ssh_user: "tposse"
+        ansible_connection: ssh
+# END ANSIBLE MANAGED BLOCK

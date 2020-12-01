@@ -1,0 +1,10 @@
+- name: Test
+  hosts: master1
+  tasks:
+    - name: Read vault keys
+      include_vars:
+        file: "{{ root_dir }}/cluster/group_vars/vault_keys.yml"
+        name: vault_keys
+
+    - debug:
+        msg: "{{ vault_keys.root_key }}"

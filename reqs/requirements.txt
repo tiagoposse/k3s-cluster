@@ -1,0 +1,7 @@
+ansible
+openshift
+ansible-modules-hashivault
+hvac
+jmespath
+pyyaml
+docker

@@ -1,0 +1,32 @@
+---
+- block:
+  - name: Create temp dir
+    tempfile:
+      state: directory
+    register: tmp
+
+  - debug:
+      msg: "{{ tmp.path }}"
+
+  - name: Copy app to temp
+    copy:
+      src: "{{ item }}"
+      dest: "{{ tmp.path }}/{{ item }}"
+    loop:
+      - Dockerfile
+      - requirements.txt
+
+  - name: Set fact with image path
+    set_fact:
+      image_path: "{{ tmp.path }}/custom-python.tar"
+
+  - name: Create image
+    docker_image:
+      source: build
+      archive_path: "{{ image_path }}"
+      build:
+        path: "{{ tmp.path }}"
+        pull: yes
+      tag: local
+      name: custom-python
+  when: inventory_hostname == 'master1'

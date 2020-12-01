@@ -1,0 +1,29 @@
+---
+- hosts: cluster
+  gather_facts: yes
+  become: yes
+  roles:
+    - role: k3s/base
+
+- hosts: localhost
+  tasks:
+    - name: Edit inventory to use ssh
+      delegate_to: localhost
+      become: no
+      run_once: yes
+      blockinfile:
+        path: "{{ root_dir }}/cluster/inventory.yml"
+        content: |2
+                vars:
+                  ansible_ssh_user: "{{ cluster_user }}"
+                  ansible_connection: ssh
+
+- hosts: master
+  become: yes
+  roles:
+    - role: k3s/master
+
+- hosts: node
+  become: yes
+  roles:
+    - role: k3s/node

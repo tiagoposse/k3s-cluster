@@ -1,0 +1,113 @@
+---
+- name: update & upgrade
+  apt:
+    upgrade: full
+    update_cache: yes
+  register: apt_out
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- file:
+    state: directory
+    name: /data
+
+- name: Reboot box if kernel/libs updated and requested by the system
+  shell: sleep 10 && /sbin/shutdown -r now 'Rebooting box to update system libs/kernel as needed' 
+  args:
+    removes: /var/run/reboot-required
+  async: 300
+  poll: 0
+  ignore_errors: true
+
+- name: install required packages
+  apt:
+    name:
+      - python3
+      - python3-dev
+      - build-essential
+      - libssl-dev
+      - libffi-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - zlib1g-dev
+      - python3-pip
+      - libpam-ssh-agent-auth
+
+- name: Configure pam to sudo with ssh agent
+  copy:
+    src: pam_sudo
+    dest: /etc/pam.d/sudo
+    force: yes
+
+- name: Configure sudo to keep SSH_AUTH_SOCK
+  lineinfile:
+    path: /etc/sudoers
+    line: Defaults env_keep += SSH_AUTH_SOCK
+    regexp: SSH_AUTH_SOCK
+    insertbefore: ".+env_reset"
+
+- name: install docker via pip
+  pip:
+    name:
+      - docker
+
+- name: Get docker install script
+  get_url:
+    url: https://get.docker.com
+    dest: /tmp/get-docker.sh
+    mode: 0755
+
+- name: Install docker
+  command:
+    cmd: /tmp/get-docker.sh
+
+- name: Enable and check docker service
+  systemd:
+    name: docker
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
+
+- name: Add user
+  user:
+    name: "{{ cluster_user }}"
+    groups:
+      - docker
+      - sudo
+    shell: /bin/bash
+
+- name: Add ssh key to user
+  authorized_key:
+    user: "{{ cluster_user }}"
+    key: "{{ lookup('file', path) }}"
+  vars:
+    path: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa.pub"
+
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Enable IPv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Download k3s binary arm64
+  get_url:
+    url: https://github.com/rancher/k3s/releases/download/{{ versions.k3s }}/k3s-arm64
+    checksum: sha256:https://github.com/rancher/k3s/releases/download/{{ versions.k3s }}/sha256sum-arm64.txt
+    dest: /usr/local/bin/k3s
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - ( ansible_facts.architecture is search("arm") and
+        ansible_facts.userspace_bits == "64" ) or
+      ansible_facts.architecture is search("aarch64")
