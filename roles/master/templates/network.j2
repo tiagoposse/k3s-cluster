@@ -1,0 +1,14 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      accept-ra: no
+      addresses:
+        - {{ ipv6_address }}
+        - {{ ipv4_address }}
+      gateway4: {{ ipv4_gateway }}
+      gateway6: {{ ipv6_gateway }}
+      nameservers:
+        search: [fritz.box]
+        addresses: [192.168.178.1]

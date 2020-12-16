@@ -3,7 +3,7 @@
   gather_facts: yes
   become: yes
   roles:
-    - role: k3s/base
+    - role: base
 
 - hosts: localhost
   tasks:
@@ -21,9 +21,9 @@
 - hosts: master
   become: yes
   roles:
-    - role: k3s/master
+    - role: master
 
 - hosts: node
   become: yes
   roles:
-    - role: k3s/node
+    - role: node

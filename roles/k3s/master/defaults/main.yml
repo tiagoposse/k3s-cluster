@@ -1,1 +1,0 @@
-extra_server_args: --no-deploy=traefik

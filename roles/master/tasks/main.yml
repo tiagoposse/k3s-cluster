@@ -1,4 +1,15 @@
 ---
+- name: Copy network file
+  template:
+    src: network.j2
+    dest: /etc/netplan/01-netplan.cfg
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Apply network config
+  command: netplan apply
+  changed_when: false
 
 - name: Copy K3s service file
   register: k3s_service

@@ -1,0 +1,6 @@
+extra_server_args: --no-deploy=traefik
+
+ipv6_address: 2a02:1748:dd5e:db0:d87a:7a24:82e9:6971/64
+ipv4_address: 192.168.178.48/24
+ipv4_gateway: "{{ ipv4_address | regex_replace('(\d\.\d+\.\d+)\..+', '\\1.1') }}"
+ipv6_gateway: "{{ ipv6_address | regex_replace('([\w\d]+:[\w\d]+:[\w\d]+:[\w\d]+):.+', '\\1::1') }}"
