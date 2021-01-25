@@ -1,0 +1,12 @@
+
+- name: Create inventory.yml
+  template:
+    src: inventory.yml.j2
+    dest: "{{ playbook_dir }}/../cluster/inventory.yml"
+    mode: 0644
+
+- name: Create group_vars/all.yml
+  template:
+    src: group_vars.yml.j2
+    dest: "{{ playbook_dir }}/../cluster/group_vars/all.yml"
+    mode: 0644

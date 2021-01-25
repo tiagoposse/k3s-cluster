@@ -1,0 +1,19 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+  children:
+    cluster:
+      children:
+        master:
+          hosts:
+            {% for host in nodes.masters %}
+            master{{loop.index}}:
+              ansible_host: {{ host }}
+            {% endfor %}
+        node:
+          hosts:
+            {% for host in nodes.workers %}
+            worker{{loop.index}}:
+              ansible_host: {{ host }}
+            {% endfor %}

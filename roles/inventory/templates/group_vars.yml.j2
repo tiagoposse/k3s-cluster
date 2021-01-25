@@ -1,0 +1,8 @@
+---
+cluster_ssh_user: {{ cluster.ssh_user }}
+kubeconfig: ~/.kube/config
+versions:
+  k3s: {{ cluster.versions.kubernetes }}
+
+root_dir: "\{\{ playbook_dir | regex_replace('/playbooks.*', '') \}\}"
+master_ip: "\{\{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) \}\}"

@@ -1,4 +1,9 @@
 ---
+- name: Generate inventory
+  hosts: localhost
+  roles:
+    - role: inventory
+
 - hosts: cluster
   gather_facts: yes
   become: yes

@@ -1,6 +1,5 @@
 ---
 cluster_user: tposse
-cluster_domain: tiagoposse.com
 kubeconfig: ~/.kube/config
 versions:
   k3s: v1.18.10+k3s1
